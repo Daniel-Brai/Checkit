@@ -18,7 +18,7 @@ services:
       retries: 5
 
   wallet_service_postgres:
-    image: postgres:15
+    image: postgres:18
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
