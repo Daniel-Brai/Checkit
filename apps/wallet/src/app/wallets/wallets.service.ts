@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
 import { WalletPrisma } from '@checkit/prisma';
-import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateWalletRequest,
   GetWalletRequest,
@@ -11,6 +10,8 @@ import {
   WalletResponse,
   Wallet
 } from '@checkit/grpc';
+import { PrismaService } from '../prisma';
+
 
 @Injectable()
 export class WalletsService {
@@ -111,7 +112,7 @@ export class WalletsService {
     if (!wallet) {
       throw new RpcException({
         code: status.NOT_FOUND,
-        message: `Wallet for user ${userId} not found`,
+        message: 'Wallet not found',
       });
     }
 
