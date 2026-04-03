@@ -32,6 +32,7 @@ COPY --from=builder /workspace/apps/user/package.json ./apps/user/package.json
 COPY --from=builder /workspace/packages/nestjs/package.json ./packages/nestjs/package.json
 COPY --from=builder /workspace/packages/prisma/package.json ./packages/prisma/package.json
 COPY --from=builder /workspace/packages/grpc/package.json ./packages/grpc/package.json
+COPY --from=builder /workspace/apps/user/prisma ./apps/user/prisma
 
 ENV NODE_ENV=production
 
@@ -39,4 +40,4 @@ RUN npm ci
 
 COPY --from=builder /workspace/dist ./dist
 
-CMD ["node", "dist/apps/user/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=./apps/user/prisma/schema.prisma && node dist/apps/user/main.js"]

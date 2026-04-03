@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  user_service_postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: checkit_user_db
+    ports:
+      - '5434:5432'
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d checkit_user_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  wallet_service_postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: checkit_wallet_db
+    ports:
+      - '5435:5432'
+    volumes:
+      - wallet_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d checkit_wallet_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user_app:
+    build:
+      context: .
+      dockerfile: apps/user/Dockerfile
+    ports:
+      - '5501:5501'
+      - '5502:5502'
+    env_file:
+      - apps/user/.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@user_service_postgres:5432/checkit_user_db?schema=public
+      - USER_DATABASE_URL=postgresql://postgres:postgres@user_service_postgres:5432/checkit_user_db?schema=public
+    depends_on:
+      user_service_postgres:
+        condition: service_healthy
+
+  wallet_app:
+    build:
+      context: .
+      dockerfile: apps/wallet/Dockerfile
+    ports:
+      - '5511:5511'
+      - '5512:5512'
+    env_file:
+      - apps/wallet/.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@wallet_service_postgres:5432/checkit_wallet_db?schema=public
+      - USER_DATABASE_URL=postgresql://postgres:postgres@wallet_service_postgres:5432/checkit_wallet_db?schema=public
+      - USER_GRPC_URL=user_app:5502
+    depends_on:
+      wallet_service_postgres:
+        condition: service_healthy
+      user_app:
+        condition: service_started
+
+volumes:
+  user_db_data:
+  wallet_db_data:

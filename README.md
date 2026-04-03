@@ -1,101 +1,283 @@
 # Checkit
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+# Backend Assessment — Wallet Microservice System
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+A microservice-based wallet system built with NestJS, gRPC, Prisma ORM, and PostgreSQL.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+---
 
-## Run tasks
+## Project Structure
 
-To run the dev server for your app, use:
-
-```sh
-npx nx serve user
+```
+checkit/
+├── apps/
+│   ├── user/               # Manages users (HTTP: 5501, gRPC: 5502)
+│   └── wallet/             # Manages wallets (HTTP: 5511, gRPC: 5512)
+├── packages/
+│   ├── grpc/               # Any GRPC related code and protobuf definitions
+│   ├── prisma/             # Generated Prisma clients
+│   └── nestjs/             # Shared internal nest js libraries (e.g. logging, common utilities)
+└── README.md
 ```
 
-To create a production bundle:
+---
 
-```sh
-npx nx build user
+## Prerequisites
+
+- Docker and Docker Compose
+- `grpcurl` — [Install here](https://github.com/fullstorydev/grpcurl#installation)
+
+---
+
+## Setup
+
+### 1. Configure environment variables
+
+```bash
+cp apps/user/.env.template apps/user/.env && cp apps/wallet/.env.template apps/wallet/.env
 ```
 
-To see all available targets to run for a project, run:
+### 2. Run with Docker Compose
 
-```sh
-npx nx show project user
+Run the application and PostgreSQL databases using Docker Compose. The databases will be initialized and Prisma migrations will run automatically on startup.
+
+```bash
+docker-compose up --build
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+---
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Health Checks
 
-## Add new projects
+```bash
+# user service
+curl http://localhost:5501/health
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/nest:app demo
+# wallet service
+curl http://localhost:5511/health
 ```
 
-To generate a new library, use:
+---
 
-```sh
-npx nx g @nx/node:lib mylib
+## API Examples (grpcurl)
+
+> All gRPC requests use plaintext (`-plaintext`) since TLS is not configured locally.
+> The proto files are passed with `-proto` for reflection.
+
+---
+
+### User Service — `localhost:5502`
+
+#### Create User
+
+```bash
+grpcurl -plaintext \
+  -proto packages/proto/user.proto \
+  -d '{
+    "email": "john.doe@example.com",
+    "name": "John Doe"
+  }' \
+  localhost:5502 \
+  user.UserService/CreateUser
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+**Response:**
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+```json
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "email": "john.doe@example.com",
+  "name": "John Doe",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+---
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+#### Get User By ID
 
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+```bash
+grpcurl -plaintext \
+  -proto packages/proto/user.proto \
+  -d '{
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }' \
+  localhost:5502 \
+  user.UserService/GetUserById
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Response:**
 
-## Install Nx Console
+```json
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "email": "john.doe@example.com",
+  "name": "John Doe",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+---
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Wallet Service — `localhost:5512`
 
-## Useful links
+#### Create Wallet
 
-Learn more:
+> The wallet service calls `UserService.GetUserById` internally to verify the user
+> exists before creating the wallet. The request will fail if the user does not exist.
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+grpcurl -plaintext \
+  -proto packages/proto/wallet.proto \
+  -d '{
+    "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }' \
+  localhost:5512 \
+  wallet.WalletService/CreateWallet
+```
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Response:**
+
+```json
+{
+  "id": "f1e2d3c4-b5a6-7890-abcd-ef0987654321",
+  "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "balance": "0.00",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+---
+
+#### Get Wallet
+
+```bash
+grpcurl -plaintext \
+  -proto packages/proto/wallet.proto \
+  -d '{
+    "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }' \
+  localhost:5512 \
+  wallet.WalletService/GetWallet
+```
+
+**Response:**
+
+```json
+{
+  "id": "f1e2d3c4-b5a6-7890-abcd-ef0987654321",
+  "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "balance": "0.00",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+---
+
+#### Credit Wallet
+
+> `amount` is sent as a string to preserve decimal precision.
+> The service parses it internally as `Decimal` before updating the balance.
+
+```bash
+grpcurl -plaintext \
+  -proto packages/proto/wallet.proto \
+  -d '{
+    "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "amount": "500.00"
+  }' \
+  localhost:5512 \
+  wallet.WalletService/CreditWallet
+```
+
+**Response:**
+
+```json
+{
+  "id": "f1e2d3c4-b5a6-7890-abcd-ef0987654321",
+  "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "balance": "500.00",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+---
+
+#### Debit Wallet
+
+> The service will return a `FAILED_PRECONDITION` error if the wallet
+> has insufficient balance to cover the requested debit amount.
+
+```bash
+grpcurl -plaintext \
+  -proto packages/proto/wallet.proto \
+  -d '{
+    "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "amount": "200.50"
+  }' \
+  localhost:5512 \
+  wallet.WalletService/DebitWallet
+```
+
+**Response:**
+
+```json
+{
+  "id": "f1e2d3c4-b5a6-7890-abcd-ef0987654321",
+  "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "balance": "299.50",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+---
+
+## Error Examples
+
+#### User not found
+
+```bash
+grpcurl -plaintext \
+  -proto packages/proto/wallet.proto \
+  -d '{"userId": "non-existent-id"}' \
+  localhost:5512 \
+  wallet.WalletService/CreateWallet
+```
+
+```json
+{
+  "code": 5,
+  "message": "User not found"
+}
+```
+
+#### Insufficient balance
+
+```bash
+grpcurl -plaintext \
+  -proto packages/proto/wallet.proto \
+  -d '{
+    "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "amount": "99999.00"
+  }' \
+  localhost:5512 \
+  wallet.WalletService/DebitWallet
+```
+
+```json
+{
+  "code": 9,
+  "message": "Insufficient balance. Current balance is 299.50"
+}
+```
+
+---
+
+## gRPC Status Codes Reference
+
+| Code | Name                  | Used When                         |
+| ---- | --------------------- | --------------------------------- |
+| 3    | `INVALID_ARGUMENT`    | Invalid or missing request fields |
+| 5    | `NOT_FOUND`           | User or wallet does not exist     |
+| 6    | `ALREADY_EXISTS`      | Duplicate user email or wallet    |
+| 9    | `FAILED_PRECONDITION` | Insufficient wallet balance       |

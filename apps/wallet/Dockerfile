@@ -20,7 +20,7 @@ RUN npm install
 
 RUN apt-get update && apt-get install -y protobuf-compiler
 
-RUN npx nx build user
+RUN npx nx build wallet
 
 FROM node:20-slim AS runner 
 
@@ -32,6 +32,7 @@ COPY --from=builder /workspace/apps/wallet/package.json ./apps/wallet/package.js
 COPY --from=builder /workspace/packages/nestjs/package.json ./packages/nestjs/package.json
 COPY --from=builder /workspace/packages/prisma/package.json ./packages/prisma/package.json
 COPY --from=builder /workspace/packages/grpc/package.json ./packages/grpc/package.json
+COPY --from=builder /workspace/apps/wallet/prisma ./apps/wallet/prisma
 
 ENV NODE_ENV=production
 
@@ -39,4 +40,4 @@ RUN npm ci
 
 COPY --from=builder /workspace/dist ./dist
 
-CMD ["node", "dist/apps/wallet/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=./apps/wallet/prisma/schema.prisma && node dist/apps/wallet/main.js"]
