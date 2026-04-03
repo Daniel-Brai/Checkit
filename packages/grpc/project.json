@@ -1,0 +1,29 @@
+{
+  "name": "grpc",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/grpc/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "dependsOn": ["gen-ts-proto"],
+      "options": {
+        "assets": [
+          {
+            "glob": "*.proto",
+            "input": "{projectRoot}/src/lib/proto",
+            "output": "./proto"
+          }
+        ]
+      }
+    },
+    "gen-ts-proto": {
+      "command": "protoc --plugin=../../../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./types ./proto/*.proto --ts_proto_opt=nestJs=true",
+      "cache": true,
+      "inputs": ["{projectRoot}/src/lib/proto/*.proto"],
+      "options": {
+        "cwd": "{projectRoot}/src/lib"
+      }
+    }
+  }
+}

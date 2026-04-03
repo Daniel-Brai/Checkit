@@ -14,7 +14,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@checkit/nestjs": ["packages/nestjs/src/index.ts"],
+      "@checkit/grpc": ["packages/grpc/src/index.ts"],
+      "@checkit/prisma": ["packages/prisma/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

@@ -1,0 +1,73 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build output
+dist
+**/dist
+build
+**/build
+
+# Prisma generated client (generated at build time)
+**/generated
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test files
+**/*.spec.ts
+**/*.e2e-spec.ts
+**/test
+**/tests
+coverage
+**/.jest-cache
+
+# TypeScript source maps
+**/*.js.map
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+docs
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Misc
+.eslintrc*
+.prettierrc*
+.editorconfig
+*.md

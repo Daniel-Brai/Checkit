@@ -38,7 +38,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/user-e2e/**/*"]
+      "exclude": ["apps/user-e2e/**/*", "apps/wallet-e2e/**/*"]
     }
   ]
 }

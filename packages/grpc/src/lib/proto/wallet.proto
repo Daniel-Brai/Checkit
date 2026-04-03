@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package wallet;
+
+service WalletService {
+  rpc CreateWallet (CreateWalletRequest) returns (WalletResponse);
+  rpc GetWallet    (GetWalletRequest)    returns (WalletResponse);
+  rpc CreditWallet (CreditWalletRequest) returns (WalletResponse);
+  rpc DebitWallet  (DebitWalletRequest)  returns (WalletResponse);
+}
+
+message CreateWalletRequest {
+  string user_id = 1;
+}
+
+message GetWalletRequest {
+  string user_id = 1;
+}
+
+message CreditWalletRequest {
+  string user_id = 1;
+  // I send the amount as a string to preserve decimal precision (e.g. "500.00")
+  // Using a float or double may introduce rounding errors end
+  // As such I will parse as a decimal on the receiver's end
+  string amount  = 2; 
+}
+
+message DebitWalletRequest {
+  string user_id = 1;
+  string amount  = 2; 
+}
+
+message WalletResponse {
+  string id         = 1;
+  string user_id    = 2;
+  // I do the same here 
+  // I convert the balance to a string to avoid precision loss from float or double
+  string balance    = 3; 
+  string created_at = 4;
+}
