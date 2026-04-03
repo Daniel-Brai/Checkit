@@ -72,7 +72,7 @@ curl http://localhost:5511/health
 
 ```bash
 grpcurl -plaintext \
-  -proto packages/proto/user.proto \
+  -proto packages/grpc/src/lib/proto/user.proto \
   -d '{
     "email": "john.doe@example.com",
     "name": "John Doe"
@@ -98,7 +98,7 @@ grpcurl -plaintext \
 
 ```bash
 grpcurl -plaintext \
-  -proto packages/proto/user.proto \
+  -proto packages/grpc/src/lib/proto/user.proto \
   -d '{
     "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
   }' \
@@ -128,7 +128,7 @@ grpcurl -plaintext \
 
 ```bash
 grpcurl -plaintext \
-  -proto packages/proto/wallet.proto \
+  -proto packages/grpc/src/lib/proto/wallet.proto \
   -d '{
     "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
   }' \
@@ -153,7 +153,7 @@ grpcurl -plaintext \
 
 ```bash
 grpcurl -plaintext \
-  -proto packages/proto/wallet.proto \
+  -proto packages/grpc/src/lib/proto/wallet.proto \
   -d '{
     "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
   }' \
@@ -181,7 +181,7 @@ grpcurl -plaintext \
 
 ```bash
 grpcurl -plaintext \
-  -proto packages/proto/wallet.proto \
+  -proto packages/grpc/src/lib/proto/wallet.proto \
   -d '{
     "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "amount": "500.00"
@@ -210,7 +210,7 @@ grpcurl -plaintext \
 
 ```bash
 grpcurl -plaintext \
-  -proto packages/proto/wallet.proto \
+  -proto packages/grpc/src/lib/proto/wallet.proto \
   -d '{
     "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "amount": "200.50"
@@ -238,7 +238,7 @@ grpcurl -plaintext \
 
 ```bash
 grpcurl -plaintext \
-  -proto packages/proto/wallet.proto \
+  -proto packages/grpc/src/lib/proto/wallet.proto \
   -d '{"userId": "non-existent-id"}' \
   localhost:5512 \
   wallet.WalletService/CreateWallet
@@ -255,7 +255,7 @@ grpcurl -plaintext \
 
 ```bash
 grpcurl -plaintext \
-  -proto packages/proto/wallet.proto \
+  -proto packages/grpc/src/lib/proto/wallet.proto \
   -d '{
     "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "amount": "99999.00"
