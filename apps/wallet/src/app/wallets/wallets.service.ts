@@ -9,6 +9,7 @@ import {
   CreditWalletRequest,
   DebitWalletRequest,
   WalletResponse,
+  Wallet
 } from '@checkit/grpc';
 
 @Injectable()
@@ -133,12 +134,7 @@ export class WalletsService {
     }
   }
 
-  private serialize(wallet: {
-    id: string;
-    userId: string;
-    balance: WalletPrisma.Decimal;
-    createdAt: Date;
-  }): WalletResponse {
+  private serialize(wallet: Wallet): WalletResponse {
     return {
       id: wallet.id,
       userId: wallet.userId,
